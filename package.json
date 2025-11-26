@@ -1,0 +1,23 @@
+{
+  "name": "mealy-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k \"npm run dev --workspace=@mealy/backend\" \"npm run start --workspace=@mealy/mobile\"",
+    "backend": "npm run dev --workspace=@mealy/backend",
+    "mobile": "npm run start --workspace=@mealy/mobile",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+    "name": "@mealy/types",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "build": "echo 'No build needed'",
+        "dev": "echo 'No dev needed'"
+    },
+    "types": "index.ts",
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}
