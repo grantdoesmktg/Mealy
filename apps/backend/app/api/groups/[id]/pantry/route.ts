@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUser } from '@/lib/auth'
-import { SubscriptionTier } from '@prisma/client'
+
 
 export async function GET(
     request: Request,
@@ -10,7 +10,7 @@ export async function GET(
     const user = await getAuthUser(request)
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (user.subscriptionTier === SubscriptionTier.FREE) {
+    if (user.subscriptionTier === 'FREE') {
         return NextResponse.json({ error: 'Pantry is a paid feature' }, { status: 403 })
     }
 
@@ -36,7 +36,7 @@ export async function POST(
     const user = await getAuthUser(request)
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (user.subscriptionTier === SubscriptionTier.FREE) {
+    if (user.subscriptionTier === 'FREE') {
         return NextResponse.json({ error: 'Pantry is a paid feature' }, { status: 403 })
     }
 

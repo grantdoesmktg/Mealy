@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUser } from '@/lib/auth'
-import { SubscriptionTier } from '@prisma/client'
 
 export async function GET(request: Request) {
     const user = await getAuthUser(request)
@@ -49,7 +48,7 @@ export async function POST(request: Request) {
         }
 
         if (useAI) {
-            if (user.subscriptionTier === SubscriptionTier.FREE) {
+            if (user.subscriptionTier === 'FREE') {
                 return NextResponse.json({ error: 'AI features require paid subscription' }, { status: 403 })
             }
 
