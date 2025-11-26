@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SubscriptionTier {
+  FREE
+  PAID
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum MealSlot {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  DESSERT
+}
+
+enum IngredientCategory {
+  PRODUCE
+  PROTEIN
+  DAIRY
+  DRY_GOODS
+  BAKING
+  SPICES
+  SNACKS
+  FROZEN
+  PANTRY
+  MISC
+}
+
+model User {
+  id                String           @id @default(uuid())
+  authId            String           @unique // External Auth ID (Clerk/Auth0)
+  email             String           @unique
+  name              String?
+  subscriptionTier  SubscriptionTier @default(FREE)
+  maxRecipesAllowed Int              @default(20)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  groups            GroupMember[]
+  createdGroups     Group[]          @relation("CreatedGroups")
+  recipes           Recipe[]
+}
+
+model Group {
+  id            String   @id @default(uuid())
+  name          String
+  createdByUserId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  createdBy     User     @relation("CreatedGroups", fields: [createdByUserId], references: [id])
+  members       GroupMember[]
+  recipes       Recipe[]
+  weekPlans     WeekPlan[]
+  shoppingCart  ShoppingCartItem[]
+  pantry        PantryItem[]
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  userId    String
+  groupId   String
+  role      Role     @default(MEMBER)
+  joinedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  group     Group    @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+}
+
+model Recipe {
+  id            String   @id @default(uuid())
+  userId        String
+  groupId       String?
+  title         String
+  sourceUrl     String?
+  imageUrl      String?
+  ingredients   Json     // Structured list of ingredients
+  steps         Json     // Structured list of steps
+  servings      Int      @default(4)
+  isAIExtracted Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id])
+  group         Group?   @relation(fields: [groupId], references: [id])
+  
+  mealAssignments WeekPlanMealAssignment[]
+}
+
+model WeekPlan {
+  id            String   @id @default(uuid())
+  groupId       String
+  weekStartDate DateTime // Monday of the week
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  group         Group    @relation(fields: [groupId], references: [id])
+  assignments   WeekPlanMealAssignment[]
+
+  @@unique([groupId, weekStartDate])
+}
+
+model WeekPlanMealAssignment {
+  id          String   @id @default(uuid())
+  weekPlanId  String
+  recipeId    String
+  day         String   // Mon, Tue, Wed, Thu, Fri, Sat, Sun
+  slot        MealSlot
+  isLeftover  Boolean  @default(false)
+
+  weekPlan    WeekPlan @relation(fields: [weekPlanId], references: [id], onDelete: Cascade)
+  recipe      Recipe   @relation(fields: [recipeId], references: [id])
+
+  @@index([weekPlanId])
+}
+
+model ShoppingCartItem {
+  id          String             @id @default(uuid())
+  groupId     String
+  ingredient  String
+  quantity    String?
+  unit        String?
+  category    IngredientCategory @default(MISC)
+  checkedOff  Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  group       Group              @relation(fields: [groupId], references: [id])
+}
+
+model PantryItem {
+  id          String   @id @default(uuid())
+  groupId     String
+  ingredient  String
+  quantity    String?
+  unit        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  group       Group    @relation(fields: [groupId], references: [id])
+}
