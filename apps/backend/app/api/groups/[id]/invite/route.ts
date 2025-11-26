@@ -20,7 +20,7 @@ export async function POST(
         return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    const isMember = group.members.some(m => m.userId === user.id)
+    const isMember = group.members.some((m: any) => m.userId === user.id)
     if (!isMember) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
